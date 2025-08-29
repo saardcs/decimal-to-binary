@@ -7,7 +7,7 @@ st.title("🔢 Binary to Decimal")
 
 # Sidebar with QR code
 st.sidebar.header("Scan This QR Code to Access the App")
-qr_link = "https://decimal-to-binary.streamlit.app/"  # Replace with your actual URL
+qr_link = "https://divide-by-2.streamlit.app"  # Replace with your actual URL
 qr = qrcode.make(qr_link)
 buf = io.BytesIO()
 qr.save(buf)
@@ -60,12 +60,20 @@ else:
             st.warning(f"⚠️ Please enter the correct number to divide: {st.session_state.current}")
         else:
             quotient = user_n // 2
-            st.markdown(f"**{user_n} / 2 = {quotient}**")
+            correct_r = user_n % 2
 
-            user_r = st.number_input("Enter the remainder (0 or 1):", min_value=0, max_value=1, step=1, key=f"r_{len(st.session_state.steps)}")
+            # Display equation and inline remainder input
+            col1, col2, col3, col4 = st.columns([2, 1, 0.5, 1])
+            with col1:
+                st.markdown(f"### {user_n} / 2 =")
+            with col2:
+                st.markdown(f"### {quotient} R")
+            with col3:
+                user_r = st.number_input("", min_value=0, max_value=1, step=1, key=f"r_{len(st.session_state.steps)}")
+            with col4:
+                st.write("")  # Spacer
 
             if st.button("✅ Submit Step"):
-                correct_r = user_n % 2
                 if user_r == correct_r:
                     st.success("✅ Correct!")
                     st.session_state.steps.append((user_n, quotient, correct_r))
