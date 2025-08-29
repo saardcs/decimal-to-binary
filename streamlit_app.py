@@ -34,7 +34,7 @@ def reset():
     for key in list(st.session_state.keys()):
         del st.session_state[key]
 
-# Startup
+# Start screen
 if not st.session_state.started:
     num = st.number_input("Enter a decimal number to convert (1–255):", min_value=1, max_value=255, step=1)
     if st.button("Start"):
@@ -68,27 +68,25 @@ else:
             quotient = current // 2
             correct_r = current % 2
 
-            # Inline division and remainder input
-            col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
-            with col1:
-                st.markdown(f"### {current} / 2 =")
-            with col2:
-                st.markdown(f"### {quotient} R")
-            with col3:
-                user_r = st.number_input("", min_value=0, max_value=1, step=1, key=f"r_{step_num}")
-            with col4:
-                if st.button("✅ Submit Step"):
-                    if user_r == correct_r:
-                        st.success("✅ Correct!")
-                        st.session_state.steps.append((current, quotient, correct_r))
-                        st.session_state.binary.insert(0, str(correct_r))
-                        st.session_state.current = quotient
-                        st.session_state.ready_for_remainder = False
-                        if quotient == 0:
-                            st.session_state.completed = True
-                        st.rerun()
-                    else:
-                        st.error("❌ Incorrect remainder. Try again.")
+            # Show division
+            st.markdown(f"### {current} / 2 = {quotient}")
+
+            # Remainder input
+            user_r = st.number_input("Enter Remainder (0 or 1):", min_value=0, max_value=1, step=1, key=f"r_{step_num}")
+
+            # Submit on new line
+            if st.button("✅ Submit Step"):
+                if user_r == correct_r:
+                    st.success("✅ Correct!")
+                    st.session_state.steps.append((current, quotient, correct_r))
+                    st.session_state.binary.insert(0, str(correct_r))
+                    st.session_state.current = quotient
+                    st.session_state.ready_for_remainder = False
+                    if quotient == 0:
+                        st.session_state.completed = True
+                    st.rerun()
+                else:
+                    st.error("❌ Incorrect remainder. Try again.")
 
     if st.session_state.completed:
         st.markdown("---")
