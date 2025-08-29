@@ -8,7 +8,7 @@ st.title("🔢 Decimal to Binary")
 
 # Sidebar with QR code
 st.sidebar.header("Scan This QR Code to Access the App")
-qr_link = "https://divide-by-2.streamlit.app"  # Replace with your actual deployed URL
+qr_link = "https://decimal-to-binary.streamlit.app"  # Replace with your actual deployed URL
 qr = qrcode.make(qr_link)
 buf = io.BytesIO()
 qr.save(buf)
