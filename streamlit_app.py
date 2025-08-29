@@ -2,12 +2,12 @@ import streamlit as st
 import qrcode
 import io
 
-st.set_page_config(page_title="Decimal to Binary", layout="centered")
-st.title("🔢 Decimal to Binary")
+st.set_page_config(page_title="Binary to Decimal", layout="centered")
+st.title("🔢 Binary to Decimal")
 
-# Sidebar QR code
+# Sidebar with QR code
 st.sidebar.header("Scan This QR Code to Access the App")
-qr_link = "https://decimal-to-binary.streamlit.app/"  # Replace with your actual URL
+qr_link = "https://divide-by-2.streamlit.app"  # Replace with your actual URL
 qr = qrcode.make(qr_link)
 buf = io.BytesIO()
 qr.save(buf)
@@ -32,7 +32,7 @@ def reset():
     for key in list(st.session_state.keys()):
         del st.session_state[key]
 
-# Start screen
+# Start input
 if not st.session_state.started:
     num = st.number_input("Enter a decimal number to convert (1–255):", min_value=1, max_value=255, step=1)
     if st.button("Start"):
@@ -47,37 +47,40 @@ else:
     if st.session_state.steps:
         st.markdown("#### Steps so far:")
         for i, (n, q, r) in enumerate(st.session_state.steps, 1):
-            st.markdown(f"**{i}. {n} ÷ 2 = {q} → Remainder: {r}**")
+            st.markdown(f"### {i}. **{n} / 2 = {q} R {r}**")
 
     if not st.session_state.completed:
-        expected_n = st.session_state.current
-        expected_r = expected_n % 2
-        expected_q = expected_n // 2
+        current = st.session_state.current
+        correct_q = current // 2
+        correct_r = current % 2
 
         st.markdown(f"### Step {len(st.session_state.steps) + 1}")
 
-        user_n = st.number_input("Enter the number to divide by 2:", min_value=0, max_value=255, step=1, key=f"n_{len(st.session_state.steps)}")
-        user_r = st.number_input("Enter the remainder (0 or 1):", min_value=0, max_value=1, step=1, key=f"r_{len(st.session_state.steps)}")
+        col1, col2 = st.columns(2)
+        with col1:
+            user_n = st.number_input("Number to divide by 2:", min_value=0, max_value=255, step=1, key=f"n_{len(st.session_state.steps)}")
+        with col2:
+            user_r = st.number_input("Remainder (0 or 1):", min_value=0, max_value=1, step=1, key=f"r_{len(st.session_state.steps)}")
 
-        if st.button("✅ Submit Step"):
-            if user_n != expected_n:
-                st.error(f"❌ Incorrect number to divide. You should enter {expected_n}.")
-            elif user_r != expected_r:
-                st.error(f"❌ Incorrect remainder. Try again.")
+        if st.button("✅ Check Answer"):
+            if user_n != current:
+                st.error(f"❌ Incorrect number to divide. You should enter {current}.")
+            elif user_r != correct_r:
+                st.error("❌ Incorrect remainder. Try again.")
             else:
                 st.success("✅ Correct!")
-                st.session_state.steps.append((user_n, expected_q, user_r))
-                st.session_state.binary.insert(0, str(user_r))
-                st.session_state.current = expected_q
-                if expected_q == 0:
+                st.session_state.steps.append((current, correct_q, correct_r))
+                st.session_state.binary.insert(0, str(correct_r))
+                st.session_state.current = correct_q
+                if correct_q == 0:
                     st.session_state.completed = True
-                st.rerun()
+                st.experimental_rerun()
 
     if st.session_state.completed:
         st.markdown("---")
         st.markdown("### ✅ Final Step")
         binary_str = ''.join(st.session_state.binary)
-        st.markdown("Now enter the binary number formed by collecting the remainders **from bottom to top**.")
+        st.markdown("Now type the complete binary number formed by collecting the remainders **from bottom to top**.")
 
         user_binary = st.text_input("Binary Answer")
 
@@ -87,4 +90,4 @@ else:
                 st.success(f"🎉 Correct! {st.session_state.number} = **{binary_str}** in binary.")
                 st.button("🔁 Try Another Number", on_click=reset)
             else:
-                st.error("❌ That’s not the correct binary. Check your remainders and try again!")
+                st.error("❌ That’s not the correct binary. Check your remainders again!")
