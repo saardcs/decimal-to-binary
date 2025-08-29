@@ -39,7 +39,7 @@ if not st.session_state.started:
         st.session_state.number = num
         st.session_state.current = num
         st.session_state.started = True
-        st.experimental_rerun()
+        st.rerun()
 else:
     st.markdown(f"### Converting **{st.session_state.number}** to Binary")
 
@@ -70,7 +70,7 @@ else:
                     st.session_state.current = quotient
                     if quotient == 0:
                         st.session_state.completed = True
-                    st.experimental_rerun()
+                    st.rerun()
                 else:
                     st.error("❌ Incorrect remainder. Try again.")
         else:
