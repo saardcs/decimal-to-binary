@@ -32,7 +32,7 @@ def reset():
     for key in list(st.session_state.keys()):
         del st.session_state[key]
 
-# Start screen
+# Start input
 if not st.session_state.started:
     num = st.number_input("Enter a decimal number to convert (1–255):", min_value=1, max_value=255, step=1)
     if st.button("Start"):
@@ -47,34 +47,36 @@ else:
     if st.session_state.steps:
         st.markdown("#### Steps so far:")
         for i, (n, q, r) in enumerate(st.session_state.steps, 1):
-            st.markdown(f"**{i}. {n} ÷ 2 = {q} → Remainder: {r}**")
+            st.markdown(f"### {i}. **{n} / 2 = {q} R {r}**")
 
     if not st.session_state.completed:
         current = st.session_state.current
-        quotient = current // 2
-        remainder_expected = current % 2
+        correct_q = current // 2
+        correct_r = current % 2
 
         st.markdown(f"### Step {len(st.session_state.steps) + 1}")
 
-        user_n = st.number_input("Enter the number to divide by 2:", min_value=0, max_value=255, step=1, key=f"n_{len(st.session_state.steps)}")
+        col1, col2, col3 = st.columns([2, 1, 1])
+        with col1:
+            user_n = st.number_input("Number to divide by 2:", min_value=0, max_value=255, step=1, key=f"n_{len(st.session_state.steps)}")
+        with col2:
+            st.markdown(f"**/ 2 = {correct_q} R**")
+        with col3:
+            user_r = st.number_input("Remainder (0 or 1):", min_value=0, max_value=1, step=1, key=f"r_{len(st.session_state.steps)}")
 
-        if user_n == current:
-            st.markdown(f"**Quotient:** {quotient}")
-            user_r = st.number_input("Enter the remainder (0 or 1):", min_value=0, max_value=1, step=1, key=f"r_{len(st.session_state.steps)}")
-
-            if st.button("✅ Submit Step"):
-                if user_r == remainder_expected:
-                    st.success("✅ Correct!")
-                    st.session_state.steps.append((current, quotient, remainder_expected))
-                    st.session_state.binary.insert(0, str(remainder_expected))
-                    st.session_state.current = quotient
-                    if quotient == 0:
-                        st.session_state.completed = True
-                    st.rerun()
-                else:
-                    st.error("❌ Incorrect remainder. Try again.")
-        else:
-            st.warning(f"⚠️ Please enter the correct number to divide: {current}")
+        if st.button("✅ Check Answer"):
+            if user_n != current:
+                st.error(f"❌ Incorrect number to divide. You should enter {current}.")
+            elif user_r != correct_r:
+                st.error("❌ Incorrect remainder. Try again.")
+            else:
+                st.success("✅ Correct!")
+                st.session_state.steps.append((current, correct_q, correct_r))
+                st.session_state.binary.insert(0, str(correct_r))
+                st.session_state.current = correct_q
+                if correct_q == 0:
+                    st.session_state.completed = True
+                st.rerun()
 
     if st.session_state.completed:
         st.markdown("---")
