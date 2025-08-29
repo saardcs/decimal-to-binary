@@ -32,7 +32,7 @@ def reset():
     for key in list(st.session_state.keys()):
         del st.session_state[key]
 
-# Start input
+# Start screen
 if not st.session_state.started:
     num = st.number_input("Enter a decimal number to convert (1–255):", min_value=1, max_value=255, step=1)
     if st.button("Start"):
@@ -50,33 +50,31 @@ else:
             st.markdown(f"### {i}. **{n} / 2 = {q} R {r}**")
 
     if not st.session_state.completed:
-        current = st.session_state.current
-        correct_q = current // 2
-        correct_r = current % 2
+        # Ask student for number to divide
+        user_n = st.number_input("Enter the number to divide by 2:", min_value=0, max_value=255, step=1, key=f"n_{len(st.session_state.steps)}")
 
-        st.markdown(f"### Step {len(st.session_state.steps) + 1}")
+        if user_n == st.session_state.current:
+            # Calculate quotient automatically
+            quotient = user_n // 2
+            st.markdown(f"**Division:** {user_n} / 2 = {quotient} R ?")
 
-        col1, col2, col3 = st.columns([2, 1, 1])
-        with col1:
-            user_n = st.number_input("Number to divide by 2:", min_value=0, max_value=255, step=1, key=f"n_{len(st.session_state.steps)}")
-        with col2:
-            st.markdown(f"**/ 2 = {correct_q} R**")
-        with col3:
-            user_r = st.number_input("Remainder (0 or 1):", min_value=0, max_value=1, step=1, key=f"r_{len(st.session_state.steps)}")
+            # Ask for remainder input only
+            user_r = st.number_input("Enter the remainder (0 or 1):", min_value=0, max_value=1, step=1, key=f"r_{len(st.session_state.steps)}")
 
-        if st.button("✅ Check Answer"):
-            if user_n != current:
-                st.error(f"❌ Incorrect number to divide. You should enter {current}.")
-            elif user_r != correct_r:
-                st.error("❌ Incorrect remainder. Try again.")
-            else:
-                st.success("✅ Correct!")
-                st.session_state.steps.append((current, correct_q, correct_r))
-                st.session_state.binary.insert(0, str(correct_r))
-                st.session_state.current = correct_q
-                if correct_q == 0:
-                    st.session_state.completed = True
-                st.rerun()
+            if st.button("✅ Submit Step"):
+                correct_r = user_n % 2
+                if user_r == correct_r:
+                    st.success("✅ Correct!")
+                    st.session_state.steps.append((user_n, quotient, correct_r))
+                    st.session_state.binary.insert(0, str(correct_r))
+                    st.session_state.current = quotient
+                    if quotient == 0:
+                        st.session_state.completed = True
+                    st.rerun()
+                else:
+                    st.error("❌ Incorrect remainder. Try again.")
+        else:
+            st.warning(f"⚠️ Please enter the current number to divide: {st.session_state.current}")
 
     if st.session_state.completed:
         st.markdown("---")
